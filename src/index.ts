@@ -14,7 +14,7 @@ app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.get("/backup", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   const secretToken = process.env.SECRET_TOKEN;
 
   if (secretToken) {
