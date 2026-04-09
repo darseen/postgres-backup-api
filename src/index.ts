@@ -10,6 +10,10 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({ status: "ok" });
+});
+
 app.get("/backup", (req: Request, res: Response) => {
   const secretToken = process.env.SECRET_TOKEN;
 
