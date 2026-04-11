@@ -1,5 +1,6 @@
 import express, { type Request, type Response } from "express";
 import { spawn } from "node:child_process";
+import { timingSafeEqual } from "node:crypto";
 import "dotenv/config";
 
 const app = express();
@@ -18,15 +19,19 @@ app.get("/", (req: Request, res: Response) => {
   const secretToken = process.env.SECRET_TOKEN;
 
   if (secretToken) {
-    const providedToken =
-      req.query.token ||
-      (req.headers.authorization || "").replace("Bearer ", "");
+    const providedTokenStr = Array.isArray(req.query.token)
+      ? req.query.token[0]
+      : req.query.token ||
+        (req.headers.authorization || "").replace("Bearer ", "");
 
-    if (providedToken !== secretToken) {
-      console.warn(`Unauthorized access attempt from ${req.ip}`);
-      return res.status(401).json({
-        error: { message: "Unauthorized" },
-      });
+    const secretBuffer = Buffer.from(secretToken);
+    const providedBuffer = Buffer.from(providedTokenStr as string);
+
+    if (
+      secretBuffer.length !== providedBuffer.length ||
+      !timingSafeEqual(secretBuffer, providedBuffer)
+    ) {
+      return res.status(401).json({ error: { message: "Unauthorized" } });
     }
   } else {
     console.warn(
