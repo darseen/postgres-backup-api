@@ -41,7 +41,8 @@ app.get("/", (req: Request, res: Response) => {
     "-Fc",
   ]);
 
-  const filename = `backup-${Date.now()}.dump`;
+  const date = new Date().toLocaleDateString().replaceAll("/", "-");
+  const filename = `dump-${date}.backup`;
   res.setHeader("Content-Type", "application/octet-stream");
   res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
