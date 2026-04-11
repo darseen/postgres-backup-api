@@ -24,7 +24,9 @@ app.get("/", (req: Request, res: Response) => {
 
     if (providedToken !== secretToken) {
       console.warn(`Unauthorized access attempt from ${req.ip}`);
-      return res.status(401).send("Unauthorized");
+      return res.status(401).json({
+        error: { message: "Unauthorized" },
+      });
     }
   } else {
     console.warn(
@@ -56,7 +58,9 @@ app.get("/", (req: Request, res: Response) => {
     if (code !== 0) {
       console.error(`pg_dump failed with exit code ${code}`);
       if (!res.headersSent) {
-        res.status(500).send("Database backup process failed.");
+        res
+          .status(500)
+          .json({ error: { message: "Database backup process failed." } });
       }
     } else {
       console.log(`Backup completed successfully.`);
@@ -73,14 +77,14 @@ app.get("/", (req: Request, res: Response) => {
 
 app.listen(Number(PORT), "::", () => {
   console.log(`Postgres Backup Service running on port ${PORT}`);
-  console.log(`Endpoint: GET /backup`);
+  console.log(`Endpoint: GET /`);
   if (!process.env.SECRET_TOKEN) {
     console.warn(
       `SECURITY WARNING: No SECRET_TOKEN provided. Your database is publicly downloadable.`,
     );
   } else {
     console.log(
-      `Security enabled. Token required via ?token=<token> query parameter.`,
+      `Security enabled. Token required via an authorization header or ?token=<token> query parameter.`,
     );
   }
 });
